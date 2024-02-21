@@ -312,7 +312,6 @@ fun BottomNavigationSection(
 
         }
     }
-
 }
 
 @Composable
