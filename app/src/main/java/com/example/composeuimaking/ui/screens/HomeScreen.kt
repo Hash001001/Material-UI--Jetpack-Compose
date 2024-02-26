@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -56,22 +58,22 @@ import com.example.composeuimaking.ui.theme.DeepBlue
 import com.example.composeuimaking.ui.theme.LightGreen1
 import com.example.composeuimaking.ui.theme.LightRed
 import com.example.composeuimaking.ui.theme.TextWhite
-import java.sql.RowId
 
 @Composable
 fun HomeScreen() {
+
     Box(
         modifier = Modifier
+            .background(DeepBlue)
             .fillMaxSize()
-            .background(color = DeepBlue)
     ) {
         Column {
-
             GreetingSection()
-            Spacer(modifier = Modifier.height(6.dp))
+
             ChipsSections(listOf("Sweet sleep", "Insomnia", "Depression"))
-            Spacer(modifier = Modifier.height(6.dp))
+
             DailyMeditationSection()
+
             FeaturedSection(
                 featureList = listOf(
                     Feature(
@@ -88,15 +90,22 @@ fun HomeScreen() {
                     )
                 )
             )
-
-            BottomNavigationSection(
-                listOf()
-            )
-
         }
 
+        BottomNavigationSection(
+            menuItem = listOf(
+                BottomMenu("Home", R.drawable.ic_home),
+                BottomMenu("Meditate", R.drawable.ic_bubble),
+                BottomMenu("Sleep", R.drawable.ic_moon),
+                BottomMenu("Music", R.drawable.ic_music),
+                BottomMenu("Profile", R.drawable.ic_profile),
+            ), modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
+        
     }
 }
+
 
 @Composable
 fun GreetingSection() {
@@ -210,8 +219,6 @@ fun FeaturedSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 100.dp)
-            .background(color = Color.Green)
     ) {
         Text(
             text = "Featured",
@@ -222,8 +229,8 @@ fun FeaturedSection(
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(start = 7.5.dp, end = 7.5.dp),
-            modifier = Modifier.fillMaxHeight()
+            contentPadding = PaddingValues(start = 7.5.dp, end = 7.5.dp, bottom = 100.dp),
+
         ) {
             items(featureList.size) {
                 FeatureItem(feature = featureList[it])
@@ -263,7 +270,7 @@ fun FeatureItem(
                 contentDescription = "",
                 modifier = Modifier.align(Alignment.BottomStart),
                 tint = Color.White
-                    )
+            )
 
             Text(
                 text = "Start",
@@ -290,28 +297,83 @@ fun FeatureItem(
 
 
 @Composable
-fun dummy() {
-
-    
-}
-
-@Composable
 fun BottomNavigationSection(
-    menuItem : List<BottomMenu>,
+    menuItem: List<BottomMenu>,
+    modifier: Modifier = Modifier,
     activeHiglightColor: Color = ButtonBlue,
     activeHiglLightTextCOlor: Color = Color.White,
     inactiveTextColor: Color = AquaBlue,
     initalSelectedItem: Int = 0
 ) {
-    val selectedItem by remember {
+    var selectedItem by remember {
         mutableStateOf(initalSelectedItem)
     }
 
-    LazyRow(){
-        items(menuItem.size){
+    Row(
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(DeepBlue)
 
+
+    ) {
+        menuItem.forEachIndexed { index, bottomMenu ->
+            BottomMenuItem(
+                item = bottomMenu,
+                isSelected = selectedItem == index,
+                activeHiglightColor = activeHiglightColor,
+                activeHiglLightTextCOlor = activeHiglLightTextCOlor,
+                inactiveTextColor = inactiveTextColor,
+                onItemClick = {
+                    selectedItem = index
+                }
+            )
         }
     }
+}
+
+
+@Composable
+fun BottomMenuItem(
+    item: BottomMenu,
+    isSelected: Boolean = false,
+    activeHiglightColor: Color = ButtonBlue,
+    activeHiglLightTextCOlor: Color = Color.White,
+    inactiveTextColor: Color = AquaBlue,
+    onItemClick: () -> Unit,
+) {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.clickable {
+            onItemClick()
+        }
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(if (isSelected) activeHiglightColor else Color.Transparent)
+                .padding(10.dp)
+
+        ) {
+            Icon(
+                painter = painterResource(id = item.icon),
+                contentDescription = item.title,
+                tint = if (isSelected) activeHiglLightTextCOlor else inactiveTextColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Text(
+            text = item.title,
+            color = if (isSelected) activeHiglightColor else inactiveTextColor
+        )
+
+    }
+
 }
 
 @Composable
